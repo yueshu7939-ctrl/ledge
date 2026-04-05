@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  const KEY = 'ledge_data';
+  const KEY = 'ledge_v3';
 
   if (req.method === 'GET') {
     const r = await fetch(`${url}/get/${KEY}`, {
@@ -17,9 +17,10 @@ export default async function handler(req, res) {
     if (json.result) {
       try {
         let parsed = json.result;
-        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
-        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
-        data = parsed;
+        while (typeof parsed === 'string') parsed = JSON.parse(parsed);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          data = parsed;
+        }
       } catch(e) {}
     }
     return res.status(200).json(data);
@@ -27,10 +28,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     const value = JSON.stringify(req.body);
-    await fetch(`${url}/set/${KEY}`, {
+    await fetch(`${url}/pipeline`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify([KEY, value])
+      body: JSON.stringify([['SET', KEY, value]])
     });
     return res.status(200).json({ ok: true });
   }
