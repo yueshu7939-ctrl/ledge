@@ -16,7 +16,10 @@ export default async function handler(req, res) {
     let data = { salary: 0, months: {} };
     if (json.result) {
       try {
-        data = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+        let parsed = json.result;
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+        data = parsed;
       } catch(e) {}
     }
     return res.status(200).json(data);
