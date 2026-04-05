@@ -88,23 +88,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div style="background:rgba(255,255,255,0.75);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:24px;padding:32px 28px;width:280px;border:1px solid rgba(255,255,255,0.9);text-align:center">
     <div style="font-size:40px;margin-bottom:10px">🔐</div>
     <div id="pin-title" style="font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:4px">Ledge</div>
-    <div id="pin-subtitle" style="font-size:13px;color:#888;margin-bottom:20px">Enter your PIN</div>
-    <div id="pin-dots" style="display:flex;justify-content:center;gap:10px;margin-bottom:24px"></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-      <button class="pin-btn" onclick="pinPress('1')">1</button>
-      <button class="pin-btn" onclick="pinPress('2')">2</button>
-      <button class="pin-btn" onclick="pinPress('3')">3</button>
-      <button class="pin-btn" onclick="pinPress('4')">4</button>
-      <button class="pin-btn" onclick="pinPress('5')">5</button>
-      <button class="pin-btn" onclick="pinPress('6')">6</button>
-      <button class="pin-btn" onclick="pinPress('7')">7</button>
-      <button class="pin-btn" onclick="pinPress('8')">8</button>
-      <button class="pin-btn" onclick="pinPress('9')">9</button>
-      <button class="pin-btn" onclick="pinPress('clear')" style="font-size:12px;color:#888">Clear</button>
-      <button class="pin-btn" onclick="pinPress('0')">0</button>
-      <button class="pin-btn" onclick="pinPress('del')" style="font-size:18px">⌫</button>
+    <div id="pin-subtitle" style="font-size:13px;color:#888;margin-bottom:20px">Authenticating...</div>
+    <div id="faceid-section">
+      <button id="faceid-btn" onclick="tryFaceId()" style="width:72px;height:72px;border-radius:50%;border:2px solid rgba(192,38,211,0.3);background:rgba(192,38,211,0.08);cursor:pointer;font-size:36px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="8" height="3" rx="1.5" fill="#c026d3"/>
+          <rect x="2" y="2" width="3" height="8" rx="1.5" fill="#c026d3"/>
+          <rect x="26" y="2" width="8" height="3" rx="1.5" fill="#c026d3"/>
+          <rect x="31" y="2" width="3" height="8" rx="1.5" fill="#c026d3"/>
+          <rect x="2" y="31" width="8" height="3" rx="1.5" fill="#c026d3"/>
+          <rect x="2" y="26" width="3" height="8" rx="1.5" fill="#c026d3"/>
+          <rect x="26" y="31" width="8" height="3" rx="1.5" fill="#c026d3"/>
+          <rect x="31" y="26" width="3" height="8" rx="1.5" fill="#c026d3"/>
+          <circle cx="13" cy="15" r="2" fill="#c026d3"/>
+          <circle cx="23" cy="15" r="2" fill="#c026d3"/>
+          <path d="M12 23 Q18 27 24 23" stroke="#c026d3" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <path d="M15 11 Q18 9 21 11" stroke="#c026d3" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
+      </button>
+      <div id="faceid-label" style="font-size:13px;color:#c026d3;font-weight:600;margin-bottom:16px">Use Face ID</div>
+      <button onclick="showPinFallback()" style="background:none;border:none;font-size:12px;color:#aaa;cursor:pointer;text-decoration:underline">Use PIN instead</button>
     </div>
-    <div id="pin-error" style="font-size:13px;color:#e05555;margin-top:14px;min-height:18px"></div>
+    <div id="pin-section" style="display:none">
+      <div id="pin-dots" style="display:flex;justify-content:center;gap:10px;margin-bottom:20px"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <button class="pin-btn" onclick="pinPress('1')">1</button>
+        <button class="pin-btn" onclick="pinPress('2')">2</button>
+        <button class="pin-btn" onclick="pinPress('3')">3</button>
+        <button class="pin-btn" onclick="pinPress('4')">4</button>
+        <button class="pin-btn" onclick="pinPress('5')">5</button>
+        <button class="pin-btn" onclick="pinPress('6')">6</button>
+        <button class="pin-btn" onclick="pinPress('7')">7</button>
+        <button class="pin-btn" onclick="pinPress('8')">8</button>
+        <button class="pin-btn" onclick="pinPress('9')">9</button>
+        <button class="pin-btn" onclick="pinPress('clear')" style="font-size:12px;color:#888">Clear</button>
+        <button class="pin-btn" onclick="pinPress('0')">0</button>
+        <button class="pin-btn" onclick="pinPress('del')" style="font-size:18px">⌫</button>
+      </div>
+      <button onclick="showFaceIdSection()" style="background:none;border:none;font-size:12px;color:#aaa;cursor:pointer;text-decoration:underline;margin-top:14px">Use Face ID instead</button>
+    </div>
+    <div id="pin-error" style="font-size:13px;color:#e05555;margin-top:12px;min-height:18px"></div>
   </div>
 </div>
 <div id="main-app" style="display:none">
@@ -405,11 +428,107 @@ async function refreshData(){
 document.getElementById('tx-date').value=new Date().toISOString().split('T')[0];
 updateSub();
 
-// PIN logic
+// Auth logic - Face ID + PIN fallback
 let pinEntry = '';
 const PIN_KEY = 'ledge_pin';
+const CRED_KEY = 'ledge_cred_id';
 const SESSION_KEY = 'ledge_unlocked';
 
+// --- Face ID ---
+function b64url(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+function fromB64url(s) {
+  s = s.replace(/-/g,'+').replace(/_/g,'/');
+  const bin = atob(s); const buf = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) buf[i]=bin.charCodeAt(i);
+  return buf.buffer;
+}
+
+async function registerFaceId() {
+  try {
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rp: { name: 'Ledge', id: location.hostname },
+      user: { id: new Uint8Array(16), name: 'ledge_user', displayName: 'Ledge User' },
+      pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+      authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
+      timeout: 60000
+    }});
+    localStorage.setItem(CRED_KEY, b64url(cred.rawId));
+    return true;
+  } catch(e) { return false; }
+}
+
+async function verifyFaceId() {
+  const credId = localStorage.getItem(CRED_KEY);
+  if (!credId) return false;
+  try {
+    const assertion = await navigator.credentials.get({ publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rpId: location.hostname,
+      allowCredentials: [{ type: 'public-key', id: fromB64url(credId) }],
+      userVerification: 'required',
+      timeout: 60000
+    }});
+    return !!assertion;
+  } catch(e) { return false; }
+}
+
+async function tryFaceId() {
+  const btn = document.getElementById('faceid-btn');
+  const label = document.getElementById('faceid-label');
+  btn.style.opacity = '0.5';
+  label.textContent = 'Scanning...';
+  document.getElementById('pin-error').textContent = '';
+
+  const credId = localStorage.getItem(CRED_KEY);
+  const pinStored = localStorage.getItem(PIN_KEY);
+
+  if (!credId && !pinStored) {
+    // First time setup
+    document.getElementById('pin-subtitle').textContent = 'Set up Face ID for Ledge';
+    const ok = await registerFaceId();
+    if (ok) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      unlockApp();
+      toast('Face ID set up!');
+    } else {
+      btn.style.opacity = '1';
+      label.textContent = 'Use Face ID';
+      document.getElementById('pin-error').textContent = 'Face ID failed — set a PIN instead';
+      showPinFallback();
+    }
+    return;
+  }
+
+  if (credId) {
+    const ok = await verifyFaceId();
+    if (ok) {
+      sessionStorage.setItem(SESSION_KEY, '1');
+      unlockApp();
+    } else {
+      btn.style.opacity = '1';
+      label.textContent = 'Use Face ID';
+      document.getElementById('pin-error').textContent = 'Face ID failed';
+    }
+  }
+}
+
+function showPinFallback() {
+  document.getElementById('faceid-section').style.display = 'none';
+  document.getElementById('pin-section').style.display = '';
+  document.getElementById('pin-subtitle').textContent = localStorage.getItem(PIN_KEY) ? 'Enter your PIN' : 'Set a PIN to protect your data';
+  renderPinDots();
+}
+
+function showFaceIdSection() {
+  document.getElementById('pin-section').style.display = 'none';
+  document.getElementById('faceid-section').style.display = '';
+  document.getElementById('pin-subtitle').textContent = 'Tap to authenticate';
+}
+
+// --- PIN ---
 function getPinLength() {
   const stored = localStorage.getItem(PIN_KEY);
   return stored ? stored.length : 4;
@@ -432,24 +551,19 @@ function pinPress(val) {
   else if (pinEntry.length < pinLen) { pinEntry += val; }
   renderPinDots();
   document.getElementById('pin-error').textContent = '';
-
   if (pinEntry.length === pinLen) {
     setTimeout(() => {
       if (!stored) {
-        // First time - set PIN
         localStorage.setItem(PIN_KEY, pinEntry);
         sessionStorage.setItem(SESSION_KEY, '1');
         unlockApp();
-        toast('PIN set successfully');
+        toast('PIN set!');
       } else if (pinEntry === stored) {
         sessionStorage.setItem(SESSION_KEY, '1');
         unlockApp();
       } else {
-        pinEntry = '';
-        renderPinDots();
+        pinEntry = ''; renderPinDots();
         document.getElementById('pin-error').textContent = 'Incorrect PIN';
-        document.getElementById('pin-screen').style.animation = 'shake 0.3s';
-        setTimeout(() => document.getElementById('pin-screen').style.animation = '', 300);
       }
     }, 100);
   }
@@ -461,27 +575,36 @@ function unlockApp() {
   loadState();
 }
 
-function checkPin() {
-  const stored = localStorage.getItem(PIN_KEY);
-  if (!stored) {
-    // No PIN set yet - show setup screen
-    document.getElementById('pin-subtitle').textContent = 'Set a PIN to protect your data';
-    renderPinDots();
+async function checkAuth() {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') { unlockApp(); return; }
+  const credId = localStorage.getItem(CRED_KEY);
+  const pinStored = localStorage.getItem(PIN_KEY);
+  const faceIdSupported = window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+
+  if (!credId && !pinStored) {
+    // First time
+    if (faceIdSupported) {
+      document.getElementById('pin-subtitle').textContent = 'Tap Face ID to set up';
+      tryFaceId();
+    } else {
+      document.getElementById('pin-subtitle').textContent = 'Set a PIN to protect your data';
+      showPinFallback();
+    }
     return;
   }
-  if (sessionStorage.getItem(SESSION_KEY) === '1') {
-    unlockApp();
-    return;
+  if (credId && faceIdSupported) {
+    document.getElementById('pin-subtitle').textContent = 'Tap to authenticate';
+    tryFaceId();
+  } else {
+    showPinFallback();
   }
-  renderPinDots();
 }
 
-// shake animation
 const shakeStyle = document.createElement('style');
 shakeStyle.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}';
 document.head.appendChild(shakeStyle);
 
-checkPin();
+checkAuth();
 
 </script>
 </div>
