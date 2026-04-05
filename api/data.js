@@ -13,16 +13,21 @@ export default async function handler(req, res) {
       headers: { Authorization: `Bearer ${token}` }
     });
     const json = await r.json();
-    const data = json.result ? JSON.parse(json.result) : { salary: 0, months: {} };
+    let data = { salary: 0, months: {} };
+    if (json.result) {
+      try {
+        data = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+      } catch(e) {}
+    }
     return res.status(200).json(data);
   }
 
   if (req.method === 'POST') {
-    const body = JSON.stringify(req.body);
+    const value = JSON.stringify(req.body);
     await fetch(`${url}/set/${KEY}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify([KEY, value])
     });
     return res.status(200).json({ ok: true });
   }
