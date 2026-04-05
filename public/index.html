@@ -475,6 +475,13 @@ async function verifyFaceId() {
   } catch(e) { return false; }
 }
 
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+  ]);
+}
+
 async function tryFaceId() {
   const btn = document.getElementById('faceid-btn');
   const label = document.getElementById('faceid-label');
@@ -485,32 +492,40 @@ async function tryFaceId() {
   const credId = localStorage.getItem(CRED_KEY);
   const pinStored = localStorage.getItem(PIN_KEY);
 
-  if (!credId && !pinStored) {
-    // First time setup
-    document.getElementById('pin-subtitle').textContent = 'Set up Face ID for Ledge';
-    const ok = await registerFaceId();
-    if (ok) {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      unlockApp();
-      toast('Face ID set up!');
-    } else {
-      btn.style.opacity = '1';
-      label.textContent = 'Use Face ID';
-      document.getElementById('pin-error').textContent = 'Face ID failed — set a PIN instead';
-      showPinFallback();
-    }
-    return;
-  }
+  const resetBtn = () => { btn.style.opacity = '1'; label.textContent = 'Try again'; };
 
-  if (credId) {
-    const ok = await verifyFaceId();
-    if (ok) {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      unlockApp();
+  try {
+    if (!credId && !pinStored) {
+      document.getElementById('pin-subtitle').textContent = 'Set up Face ID for Ledge';
+      const ok = await withTimeout(registerFaceId(), 30000);
+      if (ok) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        unlockApp();
+        toast('Face ID set up!');
+      } else {
+        resetBtn();
+        document.getElementById('pin-error').textContent = 'Face ID failed — use PIN instead';
+        showPinFallback();
+      }
+      return;
+    }
+    if (credId) {
+      const ok = await withTimeout(verifyFaceId(), 30000);
+      if (ok) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        unlockApp();
+      } else {
+        resetBtn();
+        document.getElementById('pin-error').textContent = 'Face ID failed — tap to retry';
+      }
+    }
+  } catch(e) {
+    resetBtn();
+    if (e.message === 'timeout') {
+      document.getElementById('pin-error').textContent = 'Timed out — tap to retry or use PIN';
     } else {
-      btn.style.opacity = '1';
-      label.textContent = 'Use Face ID';
-      document.getElementById('pin-error').textContent = 'Face ID failed';
+      document.getElementById('pin-error').textContent = 'Face ID unavailable — use PIN';
+      setTimeout(() => showPinFallback(), 1000);
     }
   }
 }
