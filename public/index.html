@@ -691,13 +691,10 @@ async function parseVoiceTransaction(transcript){
     if(!res.ok)throw new Error('API error '+res.status);
     const tx=await res.json();
     if(tx.error)throw new Error(tx.error);
-    pendingVoiceTx=tx;
-    document.getElementById('vr-desc').textContent=tx.desc;
-    document.getElementById('vr-amt').textContent='$'+Number(tx.amount).toFixed(2);
-    document.getElementById('vr-cat').textContent=(CATS[tx.parent]?.label||tx.parent)+(tx.sub?' · '+tx.sub.replace(/_/g,' '):'');
-    document.getElementById('vr-date').textContent=tx.date;
-    document.getElementById('voice-result').style.display='block';
-    document.getElementById('voice-status').textContent='Review and confirm';
+       await addTx(tx);
+    cancelVoice();
+    toast(`Added: ${tx.desc} $${Number(tx.amount).toFixed(2)}`);
+
   }catch(e){
     document.getElementById('voice-status').textContent='Could not parse — try again';
     toast('Parse failed: '+e.message);
