@@ -466,8 +466,10 @@ function renderHist(){
 }
 
 function renderMomChart(){
+  const canvas=document.getElementById('mom-chart');
+  if(!canvas)return;
   const skeys=Object.keys(state.months).filter(k=>!k.includes('arc')).sort().slice(-6);
-  if(skeys.length<2){document.getElementById('mom-chart').parentElement.innerHTML='<div class="empty">Need at least 2 months of data</div>';return;}
+  if(skeys.length<2){canvas.parentElement.innerHTML='<div class="empty">Need at least 2 months of data</div>';return;}
   const labels=skeys.map(mlabel);
   const actualData=skeys.map(mk=>totalSpent(state.months[mk]));
   const budgetData=skeys.map(mk=>totalBudget(state.months[mk]));
@@ -691,10 +693,9 @@ async function parseVoiceTransaction(transcript){
     if(!res.ok)throw new Error('API error '+res.status);
     const tx=await res.json();
     if(tx.error)throw new Error(tx.error);
-       await addTx(tx);
+    await addTx(tx);
     cancelVoice();
     toast(`Added: ${tx.desc} $${Number(tx.amount).toFixed(2)}`);
-
   }catch(e){
     document.getElementById('voice-status').textContent='Could not parse — try again';
     toast('Parse failed: '+e.message);
