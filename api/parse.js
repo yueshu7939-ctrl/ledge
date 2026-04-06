@@ -28,12 +28,19 @@ Return ONLY valid JSON, no markdown, no explanation:
     })
   });
 
+    if (!response.ok) {
+    const errBody = await response.text();
+    return res.status(500).json({ error: 'Anthropic API error', status: response.status, detail: errBody });
+  }
+
   const data = await response.json();
   const text = data.content?.[0]?.text?.trim();
   if (!text) return res.status(500).json({ error: 'No response from AI' });
 
   try {
-    const parsed = JSON.parse(text);
+        const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    const parsed = JSON.parse(clean);
+
     return res.status(200).json(parsed);
   } catch (e) {
     return res.status(500).json({ error: 'Parse failed', raw: text });
