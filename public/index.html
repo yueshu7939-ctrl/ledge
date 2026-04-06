@@ -708,7 +708,7 @@ function startVoice(){
     cancelVoice();
   };
   recognition.start();
-  setTimeout(()=>{if(isRecording)recognition.stop();},5000);
+  setTimeout(()=>{if(isRecording)recognition.stop();},3000);
 }
 
 function stopVoice(){
