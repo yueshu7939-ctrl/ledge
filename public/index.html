@@ -271,8 +271,10 @@ canvas{max-width:100%}
 <!-- Voice overlay -->
 <div class="voice-overlay" id="voice-overlay" onclick="handleVoiceOverlayClick(event)">
   <div class="voice-card" onclick="event.stopPropagation()">
-    <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:4px">Voice input</div>
-    <div style="font-size:12px;color:#aaa;margin-bottom:8px">Say: "McDonald's 50 dollars food dining out"</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:15px;font-weight:700;color:#1a1a1a">Voice input</div>
+      <button onclick="toggleVoiceLang()" id="voice-lang-btn" style="border:1px solid #e5e7eb;border-radius:20px;padding:4px 12px;font-size:12px;background:#f9fafb;color:#555;cursor:pointer">🇨🇳 中文</button>
+    </div>
     <div class="voice-wave" id="voice-wave">
       <div class="voice-bar" id="vb1" style="height:8px"></div>
       <div class="voice-bar" id="vb2" style="height:8px"></div>
@@ -323,6 +325,13 @@ let saving=false;
 let momChart=null;
 let pendingVoiceTx=null;
 let recognition=null;
+let voiceLang=localStorage.getItem('ledge_voice_lang')||'zh-CN';
+
+function toggleVoiceLang(){
+  voiceLang=voiceLang==='zh-CN'?'en-US':'zh-CN';
+  localStorage.setItem('ledge_voice_lang',voiceLang);
+  document.getElementById('voice-lang-btn').textContent=voiceLang==='zh-CN'?'🇨🇳 中文':'🇺🇸 English';
+}
 let isRecording=false;
 
 // ---- DATA ----
@@ -497,6 +506,8 @@ function renderAll(){
   document.getElementById('cur-month').textContent=mlabel(curMk());
   renderMetrics();renderBudBars();renderHist();renderBudgetInputs();renderAllTx();renderMomChart();
   const si=document.getElementById('salary-input');if(si&&state.salary)si.value=state.salary;
+  checkMonthEndCelebration();
+  checkMonthlyReminders();
 }
 
 // ---- ACTIONS ----
@@ -577,7 +588,7 @@ function checkBudgetWarnings(){
     const s=catSpent(md,p);const b=md.budgets[p]||0;
     return b===0||s<=b;
   });
-  if(allUnder&&tb>0&&Object.values(md.budgets).some(v=>v>0))launchConfetti();
+  // No confetti on add — only checked on month-end open
 }
 
 function launchConfetti(){
@@ -592,6 +603,27 @@ function launchConfetti(){
   }
   toast('🎉 All budgets on track!',3000);
   setTimeout(()=>container.innerHTML='',5000);
+}
+
+// ---- MONTH-END CELEBRATION ----
+function checkMonthEndCelebration(){
+  const today=new Date();
+  // Only check on first day of a new month (reviewing last month)
+  if(today.getDate()!==1)return;
+  const d=new Date(today.getFullYear(),today.getMonth()-1,1);
+  const lastMk=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  const celebKey='ledge_celebrated_'+lastMk;
+  if(localStorage.getItem(celebKey))return;
+  localStorage.setItem(celebKey,'1');
+  const md=state.months[lastMk];
+  if(!md)return;
+  const allUnder=Object.entries(CATS).every(([p])=>{
+    const s=catSpent(md,p);const b=md.budgets[p]||0;
+    return b===0||s<=b;
+  });
+  if(allUnder&&Object.values(md.budgets).some(v=>v>0)){
+    setTimeout(()=>launchConfetti(),1000);
+  }
 }
 
 // ---- MONTHLY REMINDERS ----
@@ -640,7 +672,8 @@ function startVoice(){
   const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SpeechRec){toast('Speech recognition not supported on this browser');return;}
   recognition=new SpeechRec();
-  recognition.lang='zh-CN';recognition.interimResults=true;recognition.continuous=false;
+  recognition.lang=voiceLang;recognition.interimResults=true;recognition.continuous=false;
+  document.getElementById('voice-lang-btn').textContent=voiceLang==='zh-CN'?'🇨🇳 中文':'🇺🇸 English';
   recognition.onstart=()=>{
     isRecording=true;
     document.getElementById('voice-fab').classList.add('recording');
@@ -758,8 +791,6 @@ function pinPress(val){
       }else{
         pinEntry='';renderPinDots();
         document.getElementById('pin-error').textContent='Incorrect PIN';
-        document.getElementById('pin-screen').style.animation='shake 0.3s';
-        setTimeout(()=>document.getElementById('pin-screen').style.animation='',300);
       }
     },100);
   }
