@@ -424,7 +424,7 @@ function renderAllTx(){
   let html='';
   for(const mk of skeys){
     const md=state.months[mk];
-    const txs=[...md.transactions].sort((a,b)=>b.date.localeCompare(a.date));
+    const txs=[...md.transactions].sort((a,b)=>(b.ts||b.date).localeCompare(a.ts||a.date));
     if(!txs.length)continue;
     html+=`<div style="font-size:12px;font-weight:700;color:#c026d3;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.05em">${mlabel(mk)}</div>`;
     html+=txListHtml(mk,txs,false);
@@ -520,6 +520,7 @@ async function addTx(txData){
     date:document.getElementById('tx-date').value
   };
   if(!data.desc||isNaN(data.amount)||data.amount<=0||!data.date){toast('Please fill in all fields');return;}
+  data.ts=new Date().toISOString();
   const mk=curMk();getMD(mk).transactions.push(data);
   await saveStateRemote();
   if(!txData){
@@ -532,7 +533,7 @@ async function addTx(txData){
 
 async function deleteTx(mk,idx){
   const md=getMD(mk);
-  const sorted=[...md.transactions].sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted=[...md.transactions].sort((a,b)=>(b.ts||b.date).localeCompare(a.ts||a.date));
   const t=sorted[idx];
   const ri=md.transactions.findIndex(x=>x.desc===t.desc&&x.amount===t.amount&&x.date===t.date&&x.parent===t.parent);
   if(ri>-1)md.transactions.splice(ri,1);
