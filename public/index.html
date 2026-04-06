@@ -14,7 +14,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,#ffe566 0%,#ffcc00 30%,#e879f9 70%,#c026d3 100%);background-attachment:fixed;color:#1a1a1a;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background-attachment:fixed;color:#1a1a1a;min-height:100vh}
 .header{background:rgba(255,255,255,0.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.5);padding:16px 20px;position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between}
 .header h1{font-size:18px;font-weight:700;letter-spacing:-0.3px;color:#1a1a1a}
 .header .month{font-size:13px;color:#888}
@@ -822,6 +822,32 @@ function checkAuth(){
   if(!stored)document.getElementById('pin-subtitle').textContent='Set a PIN to protect your data';
   renderPinDots();
 }
+
+// ---- RANDOM BACKGROUND ----
+(function(){
+  function hsl(h,s,l){return `hsl(${h%360},${s}%,${l}%)`}
+  const h=Math.random()*360;
+  const spread=[25,40,60,90,120][Math.floor(Math.random()*5)];
+  const angle=Math.floor(Math.random()*8)*45;
+  // Macaron palette: high lightness (80-92%), medium-high saturation (55-80%)
+  const s1=55+Math.random()*25, l1=82+Math.random()*10;
+  const s2=60+Math.random()*20, l2=80+Math.random()*12;
+  const s3=50+Math.random()*25, l3=84+Math.random()*8;
+  const c1=hsl(h,s1,l1);
+  const c2=hsl(h+spread,s2,l2);
+  const c3=hsl(h+spread*2,s3,l3);
+  const styles=[
+    `linear-gradient(${angle}deg,${c1} 0%,${c2} 50%,${c3} 100%)`,
+    `linear-gradient(${angle}deg,${c1} 0%,${c2} 100%)`,
+    `radial-gradient(ellipse at top left,${c1},${c2} 60%,${c3})`,
+    `linear-gradient(${angle}deg,${c1} 0%,${c2} 40%,${c1} 100%)`,
+  ];
+  const bg=styles[Math.floor(Math.random()*styles.length)];
+  document.body.style.background=bg;
+  document.body.style.backgroundAttachment='fixed';
+  const pin=document.getElementById('pin-screen');
+  if(pin)pin.style.background=bg;
+})();
 
 // ---- INIT ----
 document.getElementById('tx-date').value=new Date().toISOString().split('T')[0];
