@@ -522,10 +522,12 @@ async function addTx(txData){
   if(!data.desc||isNaN(data.amount)||data.amount<=0||!data.date){toast('Please fill in all fields');return;}
   const mk=curMk();getMD(mk).transactions.push(data);
   await saveStateRemote();
-  if(!txData){document.getElementById('tx-desc').value='';document.getElementById('tx-amount').value='';}
-  toast('Added!');renderAll();
-  checkBudgetWarnings();
-  showTab('dashboard');
+  if(!txData){
+    document.getElementById('tx-desc').value='';document.getElementById('tx-amount').value='';
+    toast('Added!');renderAll();checkBudgetWarnings();showTab('dashboard');
+  }else{
+    renderAll();checkBudgetWarnings();
+  }
 }
 
 async function deleteTx(mk,idx){
@@ -706,6 +708,7 @@ function startVoice(){
     cancelVoice();
   };
   recognition.start();
+  setTimeout(()=>{if(isRecording)recognition.stop();},5000);
 }
 
 function stopVoice(){
@@ -728,6 +731,7 @@ async function parseVoiceTransaction(transcript){
     await addTx(tx);
     cancelVoice();
     toast(`Added: ${tx.desc} $${Number(tx.amount).toFixed(2)}`);
+    if(currentTab!=='transactions')showTab('transactions');
   }catch(e){
     document.getElementById('voice-status').textContent='Could not parse — try again';
     toast('Parse failed: '+e.message);
@@ -751,12 +755,14 @@ function cancelVoice(){
 }
 
 // ---- TAB ----
+let currentTab='dashboard';
 function showTab(name){
   const tabs=['dashboard','add','transactions','budget','analysis','settings'];
   tabs.forEach(t=>document.getElementById('tab-'+t).style.display=t===name?'':'none');
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',tabs[i]===name));
   if(name==='analysis'){renderMomChart();renderHist();}
   if(name==='transactions')renderAllTx();
+  currentTab=name;
 }
 
 // ---- PIN ----
