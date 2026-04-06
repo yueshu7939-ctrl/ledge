@@ -175,7 +175,6 @@ canvas{max-width:100%}
 <div id="tab-dashboard">
   <div class="metrics" id="metrics"></div>
   <div class="card"><div class="card-title">Budget tracker</div><div id="bud-bars"></div></div>
-  <div class="card"><div class="card-title">Recent transactions</div><div id="tx-recent"></div></div>
 </div>
 
 <!-- ADD -->
@@ -206,7 +205,7 @@ canvas{max-width:100%}
 
 <!-- TRANSACTIONS -->
 <div id="tab-transactions" style="display:none">
-  <div class="card">
+  <div style="background:rgba(255,255,255,0.4);border-radius:20px;padding:16px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div class="card-title" style="margin-bottom:0">All transactions</div>
       <button onclick="exportData()" style="background:rgba(192,38,211,0.1);color:#c026d3;border:1px solid rgba(192,38,211,0.2);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer">Export CSV</button>
@@ -411,13 +410,6 @@ function renderBudBars(){
   document.getElementById('bud-bars').innerHTML=html;
 }
 
-function renderTxRecent(){
-  const mk=curMk();const md=getMD(mk);
-  const txs=[...md.transactions].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
-  let html=txListHtml(mk,txs,true);
-  document.getElementById('tx-recent').innerHTML=html||'<div class="empty">No transactions yet — use the mic!</div>';
-}
-
 function renderAllTx(){
   const skeys=Object.keys(state.months).filter(k=>!k.includes('arc')).sort().reverse();
   let html='';
@@ -502,7 +494,7 @@ function renderMomChart(){
 
 function renderAll(){
   document.getElementById('cur-month').textContent=mlabel(curMk());
-  renderMetrics();renderBudBars();renderTxRecent();renderHist();renderBudgetInputs();renderAllTx();renderMomChart();
+  renderMetrics();renderBudBars();renderHist();renderBudgetInputs();renderAllTx();renderMomChart();
   const si=document.getElementById('salary-input');if(si&&state.salary)si.value=state.salary;
 }
 
@@ -691,23 +683,14 @@ async function parseVoiceTransaction(transcript){
   const today=new Date().toISOString().split('T')[0];
   const catList=Object.entries(CATS).map(([k,v])=>`${k} (${v.label}${v.subs?': '+v.subs.join(', '):''})`).join(', ');
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/parse',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:300,
-        messages:[{role:'user',content:`Parse this expense into JSON. Today is ${today}.
-Transcript: "${transcript}"
-Categories: ${catList}
-Return ONLY valid JSON, no markdown:
-{"desc":"merchant name","amount":number,"parent":"category_key","sub":"subcategory_key_or_null","date":"${today}"}
-If amount unclear, use 0. Match category to the closest option.`}]
-      })
+      body:JSON.stringify({transcript,today,catList})
     });
-    const data=await res.json();
-    const text=data.content[0].text.trim();
-    const tx=JSON.parse(text);
+    if(!res.ok)throw new Error('API error '+res.status);
+    const tx=await res.json();
+    if(tx.error)throw new Error(tx.error);
     pendingVoiceTx=tx;
     document.getElementById('vr-desc').textContent=tx.desc;
     document.getElementById('vr-amt').textContent='$'+Number(tx.amount).toFixed(2);
