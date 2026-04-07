@@ -1,37 +1,92 @@
 <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
 <defs>
-  <radialGradient id="bgp" cx="40%" cy="30%" r="80%">
-    <stop offset="0%" stop-color="#1a1a2e"/>
-    <stop offset="100%" stop-color="#050510"/>
+  <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#FFD6F0"/>
+    <stop offset="100%" stop-color="#C5EEFF"/>
+  </linearGradient>
+  <radialGradient id="coinGrad" cx="38%" cy="32%" r="68%">
+    <stop offset="0%" stop-color="#FFF176"/>
+    <stop offset="40%" stop-color="#FFD93D"/>
+    <stop offset="100%" stop-color="#FFAA00"/>
   </radialGradient>
+  <radialGradient id="shineGrad" cx="32%" cy="28%" r="45%">
+    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75"/>
+    <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="coinShadow">
+    <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#FF8FAB" flood-opacity="0.35"/>
+  </filter>
 </defs>
-<rect width="200" height="200" rx="44" fill="url(#bgp)" style="stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
 
-<ellipse cx="100" cy="115" rx="58" ry="52" fill="#FFD700" style="fill:rgb(255, 215, 0);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<ellipse cx="100" cy="115" rx="58" ry="52" fill="none" stroke="#C8960A" stroke-width="2" style="fill:none;stroke:rgb(200, 150, 10);color:rgb(0, 0, 0);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<!-- Background -->
+<rect width="200" height="200" rx="46" fill="url(#bgGrad)"/>
 
-<ellipse cx="72" cy="125" rx="16" ry="10" fill="#FF8C8C" opacity="0.9" style="fill:rgb(255, 140, 140);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.9;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<ellipse cx="128" cy="125" rx="16" ry="10" fill="#FF8C8C" opacity="0.9" style="fill:rgb(255, 140, 140);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.9;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<!-- Sparkles -->
+<g transform="translate(158,32)">
+  <polygon points="0,-9 2,-2 9,0 2,2 0,9 -2,2 -9,0 -2,-2" fill="#FF8FAB"/>
+</g>
+<g transform="translate(36,162)">
+  <polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#82E0C4"/>
+</g>
+<circle cx="44" cy="42" r="5" fill="#C5A3FF" opacity="0.8"/>
+<circle cx="163" cy="158" r="4" fill="#FFB347" opacity="0.9"/>
+<g transform="translate(170,78)">
+  <polygon points="0,-5 1.2,-1.2 5,0 1.2,1.2 0,5 -1.2,1.2 -5,0 -1.2,-1.2" fill="#82CAFF"/>
+</g>
 
-<ellipse cx="82" cy="104" rx="10" ry="12" fill="#fff" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<ellipse cx="118" cy="104" rx="10" ry="12" fill="#fff" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<circle cx="85" cy="108" r="7" fill="#1a1a1a" style="fill:rgb(26, 26, 26);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<circle cx="121" cy="108" r="7" fill="#1a1a1a" style="fill:rgb(26, 26, 26);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<circle cx="87" cy="106" r="2.5" fill="#fff" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<circle cx="123" cy="106" r="2.5" fill="#fff" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<!-- Coin shadow -->
+<circle cx="102" cy="107" r="70" fill="#FFAA00" opacity="0.2"/>
 
-<ellipse cx="100" cy="122" rx="6" ry="4" fill="#C8960A" style="fill:rgb(200, 150, 10);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<path d="M88,130 Q100,142 112,130" fill="none" stroke="#C8960A" stroke-width="2.5" stroke-linecap="round" style="fill:none;stroke:rgb(200, 150, 10);color:rgb(0, 0, 0);stroke-width:2.5px;stroke-linecap:round;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<!-- Main coin -->
+<circle cx="100" cy="100" r="70" fill="url(#coinGrad)" stroke="#E8960A" stroke-width="4.5" filter="url(#coinShadow)"/>
 
-<polygon points="78,52 86,78 70,78" fill="#FFD700" stroke="#C8960A" stroke-width="1.5" style="fill:rgb(255, 215, 0);stroke:rgb(200, 150, 10);color:rgb(0, 0, 0);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<polygon points="78,52 82,60 74,60" fill="#1a1a1a" style="fill:rgb(26, 26, 26);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<polygon points="122,52 130,78 114,78" fill="#FFD700" stroke="#C8960A" stroke-width="1.5" style="fill:rgb(255, 215, 0);stroke:rgb(200, 150, 10);color:rgb(0, 0, 0);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<polygon points="122,52 126,60 118,60" fill="#1a1a1a" style="fill:rgb(26, 26, 26);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<!-- Coin rim dashes -->
+<circle cx="100" cy="100" r="64" fill="none" stroke="#E8960A" stroke-width="1.5" stroke-dasharray="3.5 5.5"/>
 
-<path d="M155,100 L168,88 L172,100 L168,112 Z" fill="#FFD700" stroke="#C8960A" stroke-width="1.5" style="fill:rgb(255, 215, 0);stroke:rgb(200, 150, 10);color:rgb(0, 0, 0);stroke-width:1.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<path d="M155,100 L165,92 L168,100 L165,108 Z" fill="#FFE87A" style="fill:rgb(255, 232, 122);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<!-- Inner ring -->
+<circle cx="100" cy="100" r="54" fill="none" stroke="#E8960A" stroke-width="2" opacity="0.4"/>
 
-<circle cx="38" cy="50" r="5" fill="#FFD700" opacity="0.7" style="fill:rgb(255, 215, 0);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.7;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<circle cx="28" cy="62" r="3" fill="#FFD700" opacity="0.5" style="fill:rgb(255, 215, 0);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.5;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
-<circle cx="165" cy="45" r="4" fill="#FFD700" opacity="0.6" style="fill:rgb(255, 215, 0);stroke:none;color:rgb(0, 0, 0);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:0.6;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<!-- ===== CUTE FACE ===== -->
+
+<!-- Cat ears - rounded triangles -->
+<path d="M 58,50 Q 62,20 78,32 Q 72,46 58,50 Z" fill="#FFD93D" stroke="#E8960A" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M 142,50 Q 138,20 122,32 Q 128,46 142,50 Z" fill="#FFD93D" stroke="#E8960A" stroke-width="2.5" stroke-linejoin="round"/>
+<!-- Inner ear pink -->
+<path d="M 62,48 Q 65,26 76,34 Q 71,44 62,48 Z" fill="#FF8FAB" opacity="0.7"/>
+<path d="M 138,48 Q 135,26 124,34 Q 129,44 138,48 Z" fill="#FF8FAB" opacity="0.7"/>
+
+<!-- Eyes -->
+<!-- Left eye -->
+<ellipse cx="84" cy="95" rx="9" ry="11" fill="#2a1a00"/>
+<ellipse cx="84" cy="95" rx="7.5" ry="9.5" fill="#1a0f00"/>
+<circle cx="87" cy="91" r="3" fill="#ffffff"/>
+<circle cx="82" cy="98" r="1.5" fill="#ffffff" opacity="0.6"/>
+
+<!-- Right eye -->
+<ellipse cx="116" cy="95" rx="9" ry="11" fill="#2a1a00"/>
+<ellipse cx="116" cy="95" rx="7.5" ry="9.5" fill="#1a0f00"/>
+<circle cx="119" cy="91" r="3" fill="#ffffff"/>
+<circle cx="114" cy="98" r="1.5" fill="#ffffff" opacity="0.6"/>
+
+<!-- Rosy cheeks -->
+<ellipse cx="70" cy="112" rx="14" ry="9" fill="#FF8FAB" opacity="0.55"/>
+<ellipse cx="130" cy="112" rx="14" ry="9" fill="#FF8FAB" opacity="0.55"/>
+
+<!-- Nose -->
+<ellipse cx="100" cy="108" rx="3.5" ry="2.5" fill="#C87000" opacity="0.6"/>
+
+<!-- Smile -->
+<path d="M 86 118 Q 100 132 114 118" fill="none" stroke="#2a1a00" stroke-width="3.5" stroke-linecap="round"/>
+
+<!-- Shine overlay -->
+<circle cx="100" cy="100" r="70" fill="url(#shineGrad)"/>
+
+<!-- Coin accent stars -->
+<g transform="translate(130,70)" opacity="0.7">
+  <polygon points="0,-5 1.2,-1.2 5,0 1.2,1.2 0,5 -1.2,1.2 -5,0 -1.2,-1.2" fill="#FFF9C4"/>
+</g>
+<g transform="translate(72,74)" opacity="0.6">
+  <polygon points="0,-4 1,-1 4,0 1,1 0,4 -1,1 -4,0 -1,-1" fill="#FFF9C4"/>
+</g>
+
 </svg>
