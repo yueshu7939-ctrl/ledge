@@ -334,15 +334,51 @@ function toggleVoiceLang(){
 let isRecording=false;
 
 // ---- DATA ----
+let loadFailed=false;
+function monthCount(s){return s&&s.months?Object.keys(s.months).length:0}
+function banner(msg){
+  let b=document.getElementById('load-banner');
+  if(!msg){if(b)b.remove();return;}
+  if(!b){b=document.createElement('div');b.id='load-banner';
+    b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#e05555;color:#fff;padding:10px 14px;font-size:13px;line-height:1.4;text-align:center';
+    document.body.appendChild(b);}
+  b.textContent=msg;
+}
 async function loadState(){
-  try{const r=await fetch(API+'/data');if(r.ok){state=await r.json();if(!state.months)state.months={};}}
-  catch(e){const l=localStorage.getItem('ledge_v3');if(l)try{state=JSON.parse(l)}catch(e){}}
+  loadFailed=false;
+  try{
+    const r=await fetch(API+'/data');
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    if(!d||typeof d!=='object'||Array.isArray(d))throw new Error('bad payload');
+    state=d;if(!state.months)state.months={};
+    banner('');
+    localStorage.setItem('ledge_v3',JSON.stringify(state));
+  }catch(e){
+    // Server data is unreachable. Fall back to the local copy and lock saving so
+    // a blank screen can never be written back over real records.
+    loadFailed=true;
+    const l=localStorage.getItem('ledge_v3');
+    if(l){try{const p=JSON.parse(l);if(p&&typeof p==='object'&&!Array.isArray(p)){state=p;if(!state.months)state.months={};}}catch(e2){}}
+    banner('\u26a0\ufe0f Could not load your data ('+e.message+'). Saving is disabled \u2014 do not record anything until this is fixed.');
+  }
   renderAll();checkMonthlyReminders();
 }
 async function saveStateRemote(){
+  if(loadFailed){toast('Not saved \u2014 data failed to load. Reload first.',3500);return;}
   if(saving)return;saving=true;
-  try{await fetch(API+'/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state)});localStorage.setItem('ledge_v3',JSON.stringify(state));}
-  catch(e){localStorage.setItem('ledge_v3',JSON.stringify(state));}
+  try{
+    const r=await fetch(API+'/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state)});
+    if(!r.ok){let d={};try{d=await r.json()}catch(e2){}throw new Error(d.message||('HTTP '+r.status));}
+    localStorage.setItem('ledge_v3',JSON.stringify(state));
+  }catch(e){
+    // Keep an offline copy, but never let an emptier state clobber a fuller backup.
+    let backupCount=0;
+    const l=localStorage.getItem('ledge_v3');
+    if(l){try{backupCount=monthCount(JSON.parse(l))}catch(e2){}}
+    if(monthCount(state)>=backupCount)localStorage.setItem('ledge_v3',JSON.stringify(state));
+    toast('Save failed: '+e.message,3500);
+  }
   saving=false;
 }
 function mkKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
