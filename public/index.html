@@ -100,8 +100,22 @@ button,input,select{font-family:inherit;color:inherit}
                height:calc(100dvh - 44px - 98px)}
 #tab-dashboard .hero{flex:0 0 auto}
 #cat-list{flex:1;display:flex;flex-direction:column;min-height:0}
-#cat-list .cat{flex:1;min-height:0}
+#cat-list .cat{flex:1;min-height:0;overflow:hidden}
 #cat-list .cat:first-child{border-top:0}
+/* fit ladder: fitNow() applies these when content would not fit. Never scroll, never clip. */
+#tab-dashboard.compact .cat .nm i{display:none}
+#tab-dashboard.compact .cat .nm{padding:4px 16px}
+#tab-dashboard.compact .cat .pc{font-size:18px}
+#tab-dashboard.tight .hero .big{font-size:64px}
+#tab-dashboard.tight .hero{padding:10px 16px 9px}
+#tab-dashboard.tight .hero .cn{font-size:20px;margin-top:7px}
+#tab-dashboard.tight .hero .st{margin-top:5px}
+#tab-dashboard.tight .watch{padding-top:7px;padding-bottom:7px}
+#tab-dashboard.tight .meta>div{padding-top:6px;padding-bottom:6px}
+#tab-dashboard.tight .sec{padding:7px 16px 4px}
+#tab-dashboard.tight .cat .nm{padding:2px 16px}
+#tab-dashboard.tight .cat .nm b{font-size:13px}
+#tab-dashboard.tight .cat .pc{font-size:15px}
 
 /* ── mom strip ── */
 .mom{border-top:2px solid var(--rule-hard);padding:13px 16px 14px}
@@ -537,7 +551,21 @@ function renderNow(){
             <div class="pc">${r.pct===null?'—':String(Math.min(r.pct,999)).padStart(2,'0')}</div></div>`;
   }).join('') : `<div class="empty"><b>本月还没有记录</b><i>NO ENTRIES YET</i></div>`;
 
+  fitNow();
 }
+
+// NOW is a fixed-viewport, non-scrolling surface (see DESIGN.md). Whatever the
+// content does — watch slot switching modes, rows appearing or retiring — this
+// steps down the fit ladder until everything is fully visible without scroll.
+function fitNow(){
+  const d=document.getElementById('tab-dashboard'); if(!d)return;
+  d.classList.remove('compact','tight');
+  const clipped=()=>[...d.querySelectorAll('.cat,.hero,.watch')]
+    .some(el=>el.scrollHeight>el.clientHeight+1);
+  if(clipped())d.classList.add('compact');
+  if(clipped())d.classList.add('tight');
+}
+window.addEventListener('resize',()=>fitNow());
 
 function renderAllTx(){
   const keys=mkeys().reverse();

@@ -197,6 +197,25 @@ it is decoration pretending to be information.
 
 ## States and Edge Cases
 
+### NOW is a fixed-viewport surface
+
+**Hard rule: the month screen never scrolls and never clips, no matter what its content
+does.** The screen is a flex column sized to the viewport; category rows stretch to
+distribute leftover space. Any content change — the watch slot switching modes, rows
+appearing or retiring, a new block added to the screen — must participate in this flex
+layout, never extend it.
+
+The guarantee is enforced, not assumed: `fitNow()` runs after every render and steps
+down a fit ladder until nothing is clipped —
+
+1. `compact` — category rows drop their English slug line and tighten padding
+2. `tight` — the hero, meta strip, watch slot, and row type all step down one size
+
+Anyone adding content to NOW inherits this: put the block inside `#tab-dashboard`, give
+it a flex behaviour, and extend the ladder if it can grow.
+
+
+
 The main screen has an escalation ladder. Exactly one rung is active at a time.
 
 | Rung | Condition | Hero block | Category rows |
