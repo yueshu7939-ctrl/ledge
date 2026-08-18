@@ -160,13 +160,6 @@ button,input,select{font-family:inherit;color:inherit}
 .nav button.on{background:var(--ink);color:var(--paper)}
 .nav button.add{background:var(--acid);color:#000;font-size:19px;letter-spacing:0;flex:0 0 62px;padding:6px 0 8px}
 
-/* ── pin ── */
-.pin-btn{padding:15px 0;border:2px solid var(--rule-hard);background:var(--paper);color:var(--ink);
-         font-family:var(--font-mono);font-size:19px;font-weight:700;cursor:pointer}
-.pin-btn:active{background:var(--ink);color:var(--paper)}
-.pin-dot{width:13px;height:13px;border:2px solid var(--ink)}
-.pin-dot.filled{background:var(--ink)}
-
 /* ── voice ── */
 .voice-fab{position:fixed;left:0;right:0;bottom:54px;height:40px;background:var(--acid);color:#000;
            border:0;border-top:2px solid var(--ink);cursor:pointer;display:flex;align-items:center;
@@ -198,32 +191,7 @@ button,input,select{font-family:inherit;color:inherit}
 </head>
 <body>
 
-<div id="pin-screen" style="position:fixed;inset:0;background:var(--paper);color:var(--ink);z-index:1000;display:flex;align-items:center;justify-content:center">
-  <div style="width:288px;border:2px solid var(--rule-hard)">
-    <div style="border-bottom:2px solid var(--rule-hard);padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline">
-      <b style="font-size:12px;font-weight:900;letter-spacing:.2em">LEDGE</b>
-      <span class="lab" id="pin-subtitle">ENTER PIN</span>
-    </div>
-    <div id="pin-dots" style="display:flex;justify-content:center;gap:11px;padding:22px 0;border-bottom:2px solid var(--rule-hard)"></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr)">
-      <button class="pin-btn" style="border-width:0 2px 2px 0" onclick="pinPress('1')">1</button>
-      <button class="pin-btn" style="border-width:0 2px 2px 0" onclick="pinPress('2')">2</button>
-      <button class="pin-btn" style="border-width:0 0 2px 0" onclick="pinPress('3')">3</button>
-      <button class="pin-btn" style="border-width:0 2px 2px 0" onclick="pinPress('4')">4</button>
-      <button class="pin-btn" style="border-width:0 2px 2px 0" onclick="pinPress('5')">5</button>
-      <button class="pin-btn" style="border-width:0 0 2px 0" onclick="pinPress('6')">6</button>
-      <button class="pin-btn" style="border-width:0 2px 2px 0" onclick="pinPress('7')">7</button>
-      <button class="pin-btn" style="border-width:0 2px 2px 0" onclick="pinPress('8')">8</button>
-      <button class="pin-btn" style="border-width:0 0 2px 0" onclick="pinPress('9')">9</button>
-      <button class="pin-btn" style="border-width:0 2px 0 0;font-size:9px;letter-spacing:.16em" onclick="pinPress('clear')">CLR</button>
-      <button class="pin-btn" style="border-width:0 2px 0 0" onclick="pinPress('0')">0</button>
-      <button class="pin-btn" style="border-width:0" onclick="pinPress('del')">&#9003;</button>
-    </div>
-    <div id="pin-error" class="lab" style="padding:9px 14px;min-height:30px;border-top:2px solid var(--rule-hard)"></div>
-  </div>
-</div>
-
-<div id="main-app" style="display:none">
+<div id="main-app">
 
 <div class="header">
   <h1>Ledge</h1>
@@ -321,9 +289,6 @@ button,input,select{font-family:inherit;color:inherit}
     <div class="form-group"><label class="form-label">固定支出 / Fixed monthly ($)</label><input class="form-input" id="fixed-input" type="number" placeholder="4135" inputmode="decimal"/></div>
     <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">房租、订阅等每月固定扣款。改动只影响本月及以后，历史月份保持当时的值。</div>
     <button class="btn btn-primary" onclick="saveFixed()">Save fixed</button>
-    <div class="divider"></div>
-    <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">Change PIN</div>
-    <button class="btn btn-secondary" onclick="resetPin()" style="width:100%;margin-bottom:12px">Reset PIN</button>
     <div class="divider"></div>
     <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">Reset current month (archives data)</div>
     <button class="btn btn-danger" onclick="resetMonth()">Reset current month</button>
@@ -919,67 +884,10 @@ function showTab(name){
   window.scrollTo(0,0);
 }
 
-// ---- PIN ----
-let pinEntry='';
-const PIN_KEY='ledge_pin';
-const SESSION_KEY='ledge_unlocked';
-
-function renderPinDots(){
-  const stored=localStorage.getItem(PIN_KEY);
-  const len=stored?stored.length:4;
-  const dots=document.getElementById('pin-dots');
-  if(!dots)return;
-  dots.innerHTML=Array.from({length:len},(_,i)=>`<div class="pin-dot ${i<pinEntry.length?'filled':''}"></div>`).join('');
-}
-
-function pinPress(val){
-  const stored=localStorage.getItem(PIN_KEY);
-  const len=stored?stored.length:4;
-  if(val==='del')pinEntry=pinEntry.slice(0,-1);
-  else if(val==='clear')pinEntry='';
-  else if(pinEntry.length<len)pinEntry+=val;
-  renderPinDots();
-  document.getElementById('pin-error').textContent='';
-  if(pinEntry.length===len){
-    setTimeout(()=>{
-      if(!stored){
-        localStorage.setItem(PIN_KEY,pinEntry);
-        sessionStorage.setItem(SESSION_KEY,'1');
-        unlockApp();toast('PIN set!');
-      }else if(pinEntry===stored){
-        sessionStorage.setItem(SESSION_KEY,'1');unlockApp();
-      }else{
-        pinEntry='';renderPinDots();
-        document.getElementById('pin-error').textContent='Incorrect PIN';
-      }
-    },100);
-  }
-}
-
-function unlockApp(){
-  document.getElementById('pin-screen').style.display='none';
-  document.getElementById('main-app').style.display='';
-  loadState();
-}
-
-function resetPin(){
-  if(!confirm('Reset your PIN? You will set a new one on next open.'))return;
-  localStorage.removeItem(PIN_KEY);
-  sessionStorage.removeItem(SESSION_KEY);
-  toast('PIN reset — set a new one next time you open');
-}
-
-function checkAuth(){
-  if(sessionStorage.getItem(SESSION_KEY)==='1'){unlockApp();return;}
-  const stored=localStorage.getItem(PIN_KEY);
-  if(!stored)document.getElementById('pin-subtitle').textContent='Set a PIN to protect your data';
-  renderPinDots();
-}
-
 // ---- INIT ----
 document.getElementById('tx-date').value=new Date().toISOString().split('T')[0];
 updateSub();
-checkAuth();
+loadState();
 </script>
 </div>
 </body>
