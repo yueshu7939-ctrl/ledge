@@ -220,7 +220,7 @@ button,input,select{font-family:inherit;color:inherit}
   <div id="hero-block"></div>
   <div id="meta-block"></div>
   <div id="watch-block"></div>
-  <div class="sec"><span class="lab">By category</span><button class="act" onclick="showTab('budget')">设置 EDIT</button></div>
+  <div class="sec"><span class="lab">By category · 已用%</span><button class="act" onclick="showTab('budget')">设置 EDIT</button></div>
   <div id="cat-list"></div>
   <div id="mom-strip"></div>
 </div>
@@ -499,7 +499,7 @@ function renderNow(){
   document.getElementById('meta-block').innerHTML=
     `<div class="meta">
        <div class="dim"><div class="k">固定 FIXED</div><div class="v">${fmtN(fixedOf(md))}</div></div>
-       <div><div class="k">可变 VAR</div><div class="v">${fmtN(vs)}</div></div>
+       <div><div class="k">已花 SPENT</div><div class="v">${fmtN(vs)}</div></div>
        <div><div class="k">上月同期</div><div class="v">${lastSame===null?'—':fmtN(lastSame)}</div></div>
      </div>`;
 
