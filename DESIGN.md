@@ -284,7 +284,23 @@ What this direction fixes:
 - Tab bar clipping `Analysis` and `Settings` off-screen → they move to `MORE`
 - `#aaa` / `#bbb` text on a pale ground → `--ink-mute` at 4.5:1 minimum
 
-**The app icon needs redoing.** The current yellow cat and `theme-color: #ffcc00` belong to the old pastel identity and will clash. Icon should become a black/acid mark with zero radius. Not yet designed.
+### App icon
+
+The mark is the word **已存** — black type on an acid ground, filling the tile edge to
+edge. Same word, same treatment as the hero companion line on the main screen, so the
+icon and the product say the same thing.
+
+- Glyphs are **outlined to vector paths** (from Heiti SC Medium, stroke-bulked toward a
+  Black weight) rather than set as `<text>`. An SVG icon cannot rely on a webfont, and
+  PingFang has no 900 weight, so live text would render thin and inconsistent.
+- `purpose` is `any`, **not** `maskable`. Android's circular mask clips the left and right
+  edges of both glyphs. iOS uses a rounded square, which preserves the horizontal band the
+  type occupies, so the design holds where this app is actually used.
+- Legible down to 32px. At 16px two CJK glyphs are inherently mushy; that is the floor for
+  any Chinese logotype and is accepted.
+
+**Known gap:** `apple-touch-icon` points at the SVG, but iOS requires a PNG for the home
+screen. A 180×180 PNG export is still owed.
 
 ## Open Questions
 
