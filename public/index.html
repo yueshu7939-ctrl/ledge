@@ -320,9 +320,9 @@ button,input,select{font-family:inherit;color:inherit}
     <div class="form-group"><label class="form-label">Monthly salary ($)</label><input class="form-input" id="salary-input" type="number" placeholder="0.00" inputmode="decimal"/></div>
     <button class="btn btn-primary" onclick="saveSalary()">Save salary</button>
     <div class="divider"></div>
-    <div style="font-size:12px;color:var(--ink-mute);margin-bottom:4px">Fixed monthly charges (auto)</div>
-    <div style="font-size:13px;color:#555;margin-bottom:4px">• Subscriptions: <strong>$60</strong></div>
-    <div style="font-size:13px;color:#555;margin-bottom:12px">• Rent: <strong>$4,075</strong></div>
+    <div class="form-group"><label class="form-label">固定支出 / Fixed monthly ($)</label><input class="form-input" id="fixed-input" type="number" placeholder="4135" inputmode="decimal"/></div>
+    <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">房租、订阅等每月固定扣款。改动只影响本月及以后，历史月份保持当时的值。</div>
+    <button class="btn btn-primary" onclick="saveFixed()">Save fixed</button>
     <div class="divider"></div>
     <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">Change PIN</div>
     <button class="btn btn-secondary" onclick="resetPin()" style="width:100%;margin-bottom:12px">Reset PIN</button>
@@ -392,7 +392,8 @@ const CATS={
   utility:{label:'Utility',cn:'水电',color:'#1d4ed8',bg:'rgba(29,78,216,0.12)',grad:'linear-gradient(90deg,#93c5fd,#1d4ed8)',subs:['Electric','Water','Sewage']},
   other:{label:'Other',cn:'其他',color:'#6b7280',bg:'rgba(107,114,128,0.12)',grad:'linear-gradient(90deg,#9ca3af,#6b7280)',subs:['Other']}
 };
-const FIXED=4135;
+const FIXED_LEGACY=4135;  // what the old hardcoded constant was; months predating md.fixed stay on it
+function fixedOf(md){return md&&md.fixed!=null?md.fixed:(state.fixed!=null?state.fixed:FIXED_LEGACY)}
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const API='/api';
 let state={salary:0,months:{}};
@@ -460,16 +461,16 @@ function mkKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'
 function curMk(){return mkKey(new Date())}
 function mlabel(mk){const[y,m]=mk.split('-');return MONTHS[parseInt(m)-1]+' '+y}
 function getMD(mk){if(!state.months[mk])state.months[mk]={transactions:[],salary:state.salary,budgets:{}};if(!state.months[mk].budgets)state.months[mk].budgets={};if(state.months[mk].salary===undefined)state.months[mk].salary=state.salary;return state.months[mk]}
-function totalSpent(md){return md.transactions.reduce((s,t)=>s+t.amount,0)+FIXED}
+function totalSpent(md){return md.transactions.reduce((s,t)=>s+t.amount,0)+fixedOf(md)}
 function calcSaved(md){return(md.salary||0)-totalSpent(md)}
-function totalBudget(md){return Object.values(md.budgets||{}).reduce((s,v)=>s+(v||0),0)+FIXED}
+function totalBudget(md){return Object.values(md.budgets||{}).reduce((s,v)=>s+(v||0),0)+fixedOf(md)}
 function catSpent(md,p){return md.transactions.filter(t=>t.parent===p).reduce((s,t)=>s+t.amount,0)}
 
 // One money formatter. Mixed formatting is a bug, not a style choice. See DESIGN.md.
 function fmtN(n){const r=Math.round(n);return (r<0?'\u2212':'')+Math.abs(r).toLocaleString('en-US')}
 function fmt(n){const r=Math.round(n);return (r<0?'\u2212':'')+'$'+Math.abs(r).toLocaleString('en-US')}
 function varSpent(md){return md.transactions.reduce((s,t)=>s+t.amount,0)}
-function savedOf(md){return (md.salary||0)-varSpent(md)-FIXED}
+function savedOf(md){return (md.salary||0)-varSpent(md)-fixedOf(md)}
 function mkeys(){return Object.keys(state.months).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort()}
 function daysInMonth(mk){const[y,m]=mk.split('-').map(Number);return new Date(y,m,0).getDate()}
 function dayOfMonth(mk){return mk===curMk()?new Date().getDate():daysInMonth(mk)}
@@ -529,7 +530,7 @@ function renderNow(){
   const lastSame = pmd?spentThroughDay(pmd,day):null;
   document.getElementById('meta-block').innerHTML=
     `<div class="meta">
-       <div class="dim"><div class="k">固定 FIXED</div><div class="v">${fmtN(FIXED)}</div></div>
+       <div class="dim"><div class="k">固定 FIXED</div><div class="v">${fmtN(fixedOf(md))}</div></div>
        <div><div class="k">可变 VAR</div><div class="v">${fmtN(vs)}</div></div>
        <div><div class="k">上月同期</div><div class="v">${lastSame===null?'—':fmtN(lastSame)}</div></div>
      </div>`;
@@ -616,7 +617,7 @@ function renderHist(){
   for(const k of keys){
     const md=state.months[k], sal=md.salary||0, sv=savedOf(md);
     h+=`<div class="hrow${k===curMk()?' on':''}"><div>${k.slice(2).replace('-','.')}</div>`+
-       `<div>${fmtN(FIXED)}</div><div>${fmtN(varSpent(md))}</div><div>${fmtN(sv)}</div>`+
+       `<div>${fmtN(fixedOf(md))}</div><div>${fmtN(varSpent(md))}</div><div>${fmtN(sv)}</div>`+
        `<div>${sal?Math.round(sv/sal*100):0}%</div></div>`;
   }
   el.innerHTML=h;
@@ -643,6 +644,7 @@ function renderAll(){
   document.getElementById('cur-month').textContent=_mk.replace('-','.')+' \u00b7 D'+dayOfMonth(_mk)+'/'+daysInMonth(_mk);
   renderNow();renderHist();renderHistChart();renderBudgetInputs();renderAllTx();
   const si=document.getElementById('salary-input');if(si&&state.salary)si.value=state.salary;
+  const fi=document.getElementById('fixed-input');if(fi)fi.value=fixedOf(getMD(curMk()));
   checkMonthEndCelebration();
   checkMonthlyReminders();
 }
@@ -682,6 +684,17 @@ async function saveSalary(){
   if(isNaN(v)||v<0){toast('Invalid salary');return;}
   state.salary=v;getMD(curMk()).salary=v;
   await saveStateRemote();toast('Salary saved');renderAll();
+}
+
+async function saveFixed(){
+  const v=parseFloat(document.getElementById('fixed-input').value);
+  if(isNaN(v)||v<0){toast('Enter a valid amount');return}
+  // Stamp history first so changing the default never rewrites past months.
+  const old=state.fixed!=null?state.fixed:FIXED_LEGACY;
+  mkeys().forEach(k=>{if(state.months[k].fixed===undefined)state.months[k].fixed=old});
+  state.fixed=v;
+  getMD(curMk()).fixed=v;
+  await saveStateRemote();toast('Fixed expenses saved');renderAll();
 }
 
 async function saveBudgets(){

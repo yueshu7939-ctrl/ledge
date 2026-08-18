@@ -121,7 +121,7 @@ as little as possible, so the hero is the number that rises when the user does w
 ```
 
 **Fixed and variable spending must never be summed into one figure on the main screen.**
-Fixed cost (`FIXED`, currently a hardcoded 4135 in `public/index.html`) cannot be
+Fixed cost (per-month `md.fixed`, editable in 设置; months predating the field stay on the legacy 4135) cannot be
 influenced this month. Variable spending is the only number the user can act on today.
 Merging them buries the actionable half under a dead constant.
 
@@ -320,3 +320,4 @@ screen. A 180×180 PNG export is still owed.
 | 2026-08-18 | 6-month strip charts saved per month, not spent | Taller is better reads correctly for a saving goal. The real data (422 → 686 → 2,057) is the strongest story the app has. |
 | 2026-08-18 | Watch slot never empties; degrades to CLOSEST in ink | An empty slot is indistinguishable from a failed load — the exact ambiguity behind the August 2026 silent-blank-screen outage. |
 | 2026-08-18 | Inversion caps at 3 over-budget rows | Inversion stops signalling once it is the majority. Same failure mode as the old four-pastel-tile dashboard. |
+| 2026-08-18 | Fixed expenses became per-month data (`md.fixed`), editable in 设置 | Rent changes over time. Editing the default stamps history first, so past months keep the value they were lived under — a change today must never rewrite April's savings rate. |
