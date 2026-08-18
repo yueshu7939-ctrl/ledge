@@ -286,21 +286,20 @@ What this direction fixes:
 
 ### App icon
 
-The mark is the word **已存** — black type on an acid ground, filling the tile edge to
-edge. Same word, same treatment as the hero companion line on the main screen, so the
-icon and the product say the same thing.
+The mark is **已存 stamped at −8°** on the acid ground — black type over a white
+mis-registration ghost, like a sticker slapped on slightly off-true. Three rounds of
+review landed here: centred static type (any layout, any colourway) read as a
+memorial tablet; the UI's energy lives in its hard strips, inverted blocks, and the
+climbing chart, and the icon needed that motion, not a specimen setting.
 
 - Glyphs are **outlined to vector paths** (from Heiti SC Medium, stroke-bulked toward a
   Black weight) rather than set as `<text>`. An SVG icon cannot rely on a webfont, and
   PingFang has no 900 weight, so live text would render thin and inconsistent.
-- The type is stretched **~2:1 vertically** to fill the tile edge to edge. The stroke
-  scales with the stretch, so horizontal bars run about twice the weight of verticals —
-  old newspaper-masthead geometry, kept deliberately.
-- `purpose` is `any`, **not** `maskable`. Android's circular mask clips the left and right
-  edges of both glyphs. iOS uses a rounded square, which preserves the horizontal band the
-  type occupies, so the design holds where this app is actually used.
-- Legible down to 32px. At 16px two CJK glyphs are inherently mushy; that is the floor for
-  any Chinese logotype and is accepted.
+- Three colours on the tile — acid ground, black type, white ghost — is the full app
+  palette and no more. The rotation and the ghost are the only "decoration", and both
+  encode motion.
+- `purpose` is `any`, **not** `maskable`: masks would clip the rotated overhang, and iOS
+  (where this app lives) uses a rounded square that preserves it.
 
 **Known gap:** `apple-touch-icon` points at the SVG, but iOS requires a PNG for the home
 screen. A 180×180 PNG export is still owed.
