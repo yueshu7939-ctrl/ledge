@@ -293,6 +293,9 @@ icon and the product say the same thing.
 - Glyphs are **outlined to vector paths** (from Heiti SC Medium, stroke-bulked toward a
   Black weight) rather than set as `<text>`. An SVG icon cannot rely on a webfont, and
   PingFang has no 900 weight, so live text would render thin and inconsistent.
+- The type is stretched **~2:1 vertically** to fill the tile edge to edge. The stroke
+  scales with the stretch, so horizontal bars run about twice the weight of verticals —
+  old newspaper-masthead geometry, kept deliberately.
 - `purpose` is `any`, **not** `maskable`. Android's circular mask clips the left and right
   edges of both glyphs. iOS uses a rounded square, which preserves the horizontal band the
   type occupies, so the design holds where this app is actually used.
@@ -321,3 +324,4 @@ screen. A 180×180 PNG export is still owed.
 | 2026-08-18 | Watch slot never empties; degrades to CLOSEST in ink | An empty slot is indistinguishable from a failed load — the exact ambiguity behind the August 2026 silent-blank-screen outage. |
 | 2026-08-18 | Inversion caps at 3 over-budget rows | Inversion stops signalling once it is the majority. Same failure mode as the old four-pastel-tile dashboard. |
 | 2026-08-18 | Fixed expenses became per-month data (`md.fixed`), editable in 设置 | Rent changes over time. Editing the default stamps history first, so past months keep the value they were lived under — a change today must never rewrite April's savings rate. |
+| 2026-08-18 | `haircut` and `utility` retired (folded into fixed) | Retired, not deleted: historical spend keeps rendering (June has a $50 haircut), but the categories leave the add form, voice parsing, and budget editing. Money on record is never hidden. |

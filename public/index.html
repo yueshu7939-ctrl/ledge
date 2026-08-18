@@ -268,8 +268,6 @@ button,input,select{font-family:inherit;color:inherit}
         <option value="transportation">Transportation</option>
         <option value="shopping">Shopping</option>
         <option value="health">Health</option>
-        <option value="haircut">Haircut</option>
-        <option value="utility">Utility</option>
         <option value="other">Other</option>
       </select>
     </div>
@@ -388,8 +386,8 @@ const CATS={
   transportation:{label:'Transportation',cn:'交通',color:'#c2410c',bg:'rgba(194,65,12,0.12)',grad:'linear-gradient(90deg,#fb923c,#c2410c)',subs:['Zipcar','Transit','Rideshare']},
   shopping:{label:'Shopping',cn:'购物',color:'#be185d',bg:'rgba(190,24,93,0.12)',grad:'linear-gradient(90deg,#f472b6,#be185d)',subs:['Clothing','Electronics','Home']},
   health:{label:'Health',cn:'健康',color:'#0f766e',bg:'rgba(15,118,110,0.12)',grad:'linear-gradient(90deg,#2dd4bf,#0f766e)',subs:['Gym','Medical','Pharmacy']},
-  haircut:{label:'Haircut',cn:'剪发',color:'#92400e',bg:'rgba(146,64,14,0.12)',grad:'linear-gradient(90deg,#fbbf24,#92400e)',subs:null},
-  utility:{label:'Utility',cn:'水电',color:'#1d4ed8',bg:'rgba(29,78,216,0.12)',grad:'linear-gradient(90deg,#93c5fd,#1d4ed8)',subs:['Electric','Water','Sewage']},
+  haircut:{label:'Haircut',cn:'剪发',retired:true,color:'#92400e',bg:'rgba(146,64,14,0.12)',grad:'linear-gradient(90deg,#fbbf24,#92400e)',subs:null},
+  utility:{label:'Utility',cn:'水电',retired:true,color:'#1d4ed8',bg:'rgba(29,78,216,0.12)',grad:'linear-gradient(90deg,#93c5fd,#1d4ed8)',subs:['Electric','Water','Sewage']},
   other:{label:'Other',cn:'其他',color:'#6b7280',bg:'rgba(107,114,128,0.12)',grad:'linear-gradient(90deg,#9ca3af,#6b7280)',subs:['Other']}
 };
 const FIXED_LEGACY=4135;  // what the old hardcoded constant was; months predating md.fixed stay on it
@@ -481,6 +479,7 @@ function catRows(md){
   for(const[p,cat] of Object.entries(CATS)){
     const sp=catSpent(md,p), b=md.budgets[p]||0;
     if(sp===0&&b===0)continue;              // budget 0 and no spend is noise
+    if(cat.retired&&sp===0)continue;        // retired (folded into fixed): only spend keeps it visible
     rows.push({p,cat,sp,b,pct:b>0?Math.round(sp/b*100):null,over:b>0&&sp>b});
   }
   rows.sort((a,b)=>(b.over-a.over)||((b.pct??-1)-(a.pct??-1)));
@@ -605,7 +604,8 @@ function renderBudgetInputs(){
   const mk=curMk();const md=getMD(mk);
   let html='';
   for(const[p,cat] of Object.entries(CATS)){
-    html+=`<div class="s-row"><span class="s-label">${cat.label}</span><input class="s-input" id="bud-${p}" type="number" placeholder="0" value="${md.budgets[p]||''}" inputmode="decimal"/></div>`;
+    if(cat.retired)continue;
+    html+=`<div class="s-row"><span class="s-label">${cat.cn} ${cat.label}</span><input class="s-input" id="bud-${p}" type="number" placeholder="0" value="${md.budgets[p]||''}" inputmode="decimal"/></div>`;
   }
   document.getElementById('budget-inputs').innerHTML=html;
 }
@@ -699,7 +699,8 @@ async function saveFixed(){
 
 async function saveBudgets(){
   const mk=curMk();const md=getMD(mk);
-  for(const p of Object.keys(CATS)){
+  for(const[p,cat] of Object.entries(CATS)){
+    if(cat.retired){delete md.budgets[p];continue}   // folded into fixed; stop budgeting it
     const v=parseFloat(document.getElementById('bud-'+p)?.value||0);
     md.budgets[p]=isNaN(v)?0:v;
   }
@@ -869,7 +870,7 @@ function stopVoice(){
 async function parseVoiceTransaction(transcript){
   document.getElementById('voice-status').textContent='Parsing with AI...';
   const today=new Date().toISOString().split('T')[0];
-  const catList=Object.entries(CATS).map(([k,v])=>`${k} (${v.label}${v.subs?': '+v.subs.join(', '):''})`).join(', ');
+  const catList=Object.entries(CATS).filter(([k,v])=>!v.retired).map(([k,v])=>`${k} (${v.label}${v.subs?': '+v.subs.join(', '):''})`).join(', ');
   try{
     const res=await fetch('/api/parse',{
       method:'POST',
