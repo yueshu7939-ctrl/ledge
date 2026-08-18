@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Vite Dev Server",
+      "runtimeExecutable": "/usr/local/bin/node",
+      "runtimeArgs": ["/Users/yueshu/Projects/ledge/node_modules/.bin/vite", "--host"],
+      "port": 5173
+    },
+    {
+      "name": "Ledge Static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5180", "--directory", "/Users/yueshu/Projects/ledge/public"],
+      "port": 5180
+    }
+  ]
+}
