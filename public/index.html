@@ -95,6 +95,14 @@ button,input,select{font-family:inherit;color:inherit}
 .cat.ov .pc{border-left:1px solid var(--acid)}
 .cat.edge{box-shadow:inset 4px 0 0 var(--acid)}
 
+/* ── NOW: flex column filling the viewport exactly, no scroll. See DESIGN.md. ── */
+#tab-dashboard{display:flex;flex-direction:column;overflow:hidden;
+               height:calc(100dvh - 44px - 98px)}
+#tab-dashboard .hero{flex:0 0 auto}
+#cat-list{flex:1;display:flex;flex-direction:column;min-height:0}
+#cat-list .cat{flex:1;min-height:0}
+#cat-list .cat:first-child{border-top:0}
+
 /* ── mom strip ── */
 .mom{border-top:2px solid var(--rule-hard);padding:13px 16px 14px}
 .mom .bars{display:flex;align-items:flex-end;gap:9px;height:74px;margin:11px 0 5px}
@@ -222,7 +230,6 @@ button,input,select{font-family:inherit;color:inherit}
   <div id="watch-block"></div>
   <div class="sec"><span class="lab">By category · 已用%</span><button class="act" onclick="showTab('budget')">设置 EDIT</button></div>
   <div id="cat-list"></div>
-  <div id="mom-strip"></div>
 </div>
 
 <!-- ADD -->
@@ -479,23 +486,25 @@ function renderNow(){
   const sal=md.salary||0, vs=varSpent(md), saved=savedOf(md);
   const rate=sal>0?Math.round(saved/sal*100):0;
   const day=dayOfMonth(mk), dim=daysInMonth(mk);
-  const pk=prevMk(mk), pmd=state.months[pk];
+  const priorKeys=mkeys().filter(k=>k<mk);
+  const pk=priorKeys[priorKeys.length-1], pmd=pk?state.months[pk]:null;
 
   // ── hero. SAVED, never REMAINING. See DESIGN.md.
-  let st='首月 / FIRST MONTH';
+  let st='';
   if(pmd){const d=saved-savedOf(pmd);
-    st = d>0?`↑ 比上月多存 ${fmt(d)}` : d<0?`↓ 比上月少存 ${fmt(-d)}` : '与上月持平';}
+    const ref=pk===prevMk(mk)?'上月':pk.slice(5)+'月';
+    st = d>0?`↑ 比${ref}多存 ${fmt(d)}` : d<0?`↓ 比${ref}少存 ${fmt(-d)}` : `与${ref}持平`;}
   if(!sal) st='点「设置」填入薪资';
   document.getElementById('hero-block').innerHTML=
     `<div class="hero${saved<0?' inv':''}">
        <div class="lab">Saved</div>
        <div class="big ${'d'+Math.min(Math.max(String(fmtN(saved)).length,5),8)}">${sal?fmtN(saved):'···'}</div>
        <div class="cn">已存<i>储蓄率 ${sal?rate:0}%</i></div>
-       <div class="st">${st}</div>
+       ${st?`<div class="st">${st}</div>`:''}
      </div>`;
 
   // ── meta. Fixed is dimmed: it cannot be influenced this month.
-  const lastSame = pmd?spentThroughDay(pmd,day):null;
+  const lastSame = pmd?spentThroughDay(pmd,Math.min(day,daysInMonth(pk))):null;
   document.getElementById('meta-block').innerHTML=
     `<div class="meta">
        <div class="dim"><div class="k">固定 FIXED</div><div class="v">${fmtN(fixedOf(md))}</div></div>
@@ -528,22 +537,6 @@ function renderNow(){
             <div class="pc">${r.pct===null?'—':String(Math.min(r.pct,999)).padStart(2,'0')}</div></div>`;
   }).join('') : `<div class="empty"><b>本月还没有记录</b><i>NO ENTRIES YET</i></div>`;
 
-  renderMomStrip();
-}
-
-function renderMomStrip(){
-  const el=document.getElementById('mom-strip'); if(!el)return;
-  const keys=mkeys().slice(-6);
-  if(!keys.length){el.innerHTML='';return}
-  const vals=keys.map(k=>savedOf(state.months[k]));
-  const max=Math.max(...vals.map(v=>Math.abs(v)),1), cur=curMk();
-  el.innerHTML=`<div class="mom">
-    <div class="lab">已存 / ${keys.length} months</div>
-    <div class="bars">${keys.map((k,i)=>
-      `<div class="${k===cur?'now':''}${vals[i]<0?' neg':''}" style="height:${Math.max(Math.abs(vals[i])/max*100,2).toFixed(1)}%"></div>`).join('')}</div>
-    <div class="vals">${vals.map(v=>`<span>${fmtN(v)}</span>`).join('')}</div>
-    <div class="ax">${keys.map(k=>`<span>${k.slice(5)}</span>`).join('')}</div>
-  </div>`;
 }
 
 function renderAllTx(){
